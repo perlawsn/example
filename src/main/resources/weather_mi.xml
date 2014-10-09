@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device type="test-json" name="test"
+	xmlns="http://perla.dei.org/device"
+	xmlns:js="http://perla.dei.org/fpc/message/json"
+	xmlns:http="http://perla.dei.org/channel/http"
+	xmlns:i="http://perla.dei.org/device/instructions">
+
+	<attributes>
+		<attribute id="city" type="string" permission="read-only"/>
+		<attribute id="temp_k" type="float" permission="read-only"/>
+		<attribute id="temp_c" type="float" permission="read-only"/>
+		<attribute id="temp_f" type="float" permission="read-only"/>
+		<attribute id="pressure" type="float" permission="read-only"/>
+		<attribute id="humidity" type="float" permission="read-only"/>
+		<attribute id="wind_speed" type="float" permission="read-only"/>
+		<attribute id="wind_deg" type="float" permission="read-only"/>
+	</attributes>
+	
+	<channels>
+		<http:channel id="http"/>
+	</channels>
+	
+	<messages>
+		<js:object id="coord">
+			<js:value name="lon" type="string"/>
+			<js:value name="lat" type="string"/>
+		</js:object>
+		
+		<js:object id="main">
+			<js:value name="temp" type="float"/>
+			<js:value name="pressure" type="float"/>
+			<js:value name="humidity" type="float"/>
+			<js:value name="temp_min" type="float"/>
+			<js:value name="temp_max" type="float"/>
+		</js:object>
+		
+		<js:object id="wind">
+			<js:value name="speed" type="float"/>
+			<js:value name="deg" type="float"/>
+		</js:object>
+		
+		<js:object id="weather">
+ 			<js:value name="coord" type="coord"/>
+ 			<js:value name="main" type="main"/>
+ 			<js:value name="wind" type="wind"/>
+		</js:object>
+	</messages>
+	
+	<requests>
+		<http:request
+			id="weather-mi" 
+			host="http://api.openweathermap.org/data/2.5/weather?q=Milan,it"
+			method="get" />
+	</requests>
+	
+	<operations>
+		<get id="weather-mi">
+			<i:submit request="weather-mi" channel="http" variable="result" type="weather"/>
+			<i:put expression="Milan" attribute="city"/>
+			<i:put expression="${result.main.temp}" attribute="temp_k"/>
+			<i:put expression="${result.main.temp - 272.15}" attribute="temp_c"/>
+			<i:put expression="${(result.main.temp - 273.15) * 9 / 5 + 32}" attribute="temp_f"/>
+			<i:put expression="${result.main.pressure}" attribute="pressure"/>
+			<i:put expression="${result.main.humidity}" attribute="humidity"/>
+			<i:put expression="${result.wind.speed}" attribute="wind_speed"/>
+			<i:put expression="${result.wind.deg}" attribute="wind_deg"/>
+			<i:emit/>
+		</get>
+	</operations>
+	
+</device>
