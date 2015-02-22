@@ -58,10 +58,10 @@ public class Main {
 
 	public static DeviceDescriptorParser createParser() {
 		List<String> packageList = new ArrayList<>();
-		packageList.add("org.dei.perla.fpc.descriptor");
-		packageList.add("org.dei.perla.fpc.descriptor.instructions");
-		packageList.add("org.dei.perla.channel.http");
-		packageList.add("org.dei.perla.message.json");
+		packageList.add("org.dei.perla.core.descriptor");
+		packageList.add("org.dei.perla.core.descriptor.instructions");
+		packageList.add("org.dei.perla.core.channel.http");
+		packageList.add("org.dei.perla.core.message.json");
 
 		return new JaxbDeviceDescriptorParser(packageList);
 	}
