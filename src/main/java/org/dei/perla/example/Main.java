@@ -1,33 +1,32 @@
 package org.dei.perla.example;
 
+import org.dei.perla.core.channel.ChannelFactory;
+import org.dei.perla.core.channel.IORequestBuilderFactory;
+import org.dei.perla.core.channel.http.HttpChannelFactory;
+import org.dei.perla.core.channel.http.HttpIORequestBuilderFactory;
+import org.dei.perla.core.descriptor.DataType;
+import org.dei.perla.core.descriptor.DeviceDescriptor;
+import org.dei.perla.core.descriptor.DeviceDescriptorParser;
+import org.dei.perla.core.descriptor.JaxbDeviceDescriptorParser;
+import org.dei.perla.core.engine.Executor;
+import org.dei.perla.core.fpc.Fpc;
+import org.dei.perla.core.fpc.FpcFactory;
+import org.dei.perla.core.fpc.Task;
+import org.dei.perla.core.fpc.TaskHandler;
+import org.dei.perla.core.fpc.base.BaseFpcFactory;
+import org.dei.perla.core.message.MapperFactory;
+import org.dei.perla.core.message.json.JsonMapperFactory;
+import org.dei.perla.core.record.Attribute;
+import org.dei.perla.core.record.Record;
+
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.dei.perla.channel.ChannelFactory;
-import org.dei.perla.channel.IORequestBuilderFactory;
-import org.dei.perla.channel.http.HttpChannelFactory;
-import org.dei.perla.channel.http.HttpIORequestBuilderFactory;
-import org.dei.perla.fpc.Attribute;
-import org.dei.perla.fpc.Fpc;
-import org.dei.perla.fpc.FpcFactory;
-import org.dei.perla.fpc.Task;
-import org.dei.perla.fpc.TaskHandler;
-import org.dei.perla.fpc.base.BaseFpcFactory;
-import org.dei.perla.fpc.descriptor.DataType;
-import org.dei.perla.fpc.descriptor.DeviceDescriptor;
-import org.dei.perla.fpc.descriptor.DeviceDescriptorParser;
-import org.dei.perla.fpc.descriptor.JaxbDeviceDescriptorParser;
-import org.dei.perla.fpc.engine.Executor;
-import org.dei.perla.fpc.engine.Record;
-import org.dei.perla.fpc.engine.Record.Field;
-import org.dei.perla.message.MapperFactory;
-import org.dei.perla.message.json.JsonMapperFactory;
-
 public class Main {
-	
+
 	private static final String descFile = "src/main/resources/weather_mi.xml";
 
 	public static void main(String[] args) throws Exception {
@@ -42,7 +41,7 @@ public class Main {
 
 		System.out.println("Requesting data...");
 		List<Attribute> atts = new ArrayList<>();
-		atts.add(new Attribute("temp_c", DataType.FLOAT));
+		atts.add(Attribute.create("temp_c", DataType.FLOAT));
 		PrintHandler ph = new PrintHandler();
 		fpc.get(atts, ph); // Single shot
 		// fpc.get(atts, 1000, ph); // Periodic
@@ -97,11 +96,13 @@ public class Main {
 		}
 
 		@Override
-		public void newRecord(Task task, Record record) {
+		public void newRecord(Task task, Record r) {
 			System.out.println("New record received: ");
-			for (Field f : record.fields()) {
-				System.out.println(f.getName() + ": " + f.getValue());
-			}
+            List<Attribute> atts = r.getAttributes();
+            Object[] fields = r.getFields();
+            for (int i = 0; i < atts.size(); i++) {
+                System.out.println(atts.get(i).getId() + ": " + fields[i]);
+            }
 		}
 
 		@Override
