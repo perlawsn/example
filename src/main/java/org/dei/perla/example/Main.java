@@ -98,8 +98,8 @@ public class Main {
 		@Override
 		public void newRecord(Task task, Record r) {
 			System.out.println("New record received: ");
-            List<Attribute> atts = r.getAttributes();
-            Object[] fields = r.getFields();
+            List<Attribute> atts = r.fields();
+            Object[] fields = r.values();
             for (int i = 0; i < atts.size(); i++) {
                 System.out.println(atts.get(i).getId() + ": " + fields[i]);
             }
