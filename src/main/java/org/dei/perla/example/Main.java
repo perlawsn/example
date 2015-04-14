@@ -16,8 +16,8 @@ import org.dei.perla.core.fpc.TaskHandler;
 import org.dei.perla.core.fpc.base.BaseFpcFactory;
 import org.dei.perla.core.message.MapperFactory;
 import org.dei.perla.core.message.json.JsonMapperFactory;
-import org.dei.perla.core.record.Attribute;
-import org.dei.perla.core.record.Record;
+import org.dei.perla.core.sample.Attribute;
+import org.dei.perla.core.sample.Sample;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -96,8 +96,8 @@ public class Main {
 		}
 
 		@Override
-		public void newRecord(Task task, Record r) {
-			System.out.println("New record received: ");
+		public void data(Task task, Sample r) {
+			System.out.println("New sample received: ");
             List<Attribute> atts = r.fields();
             Object[] fields = r.values();
             for (int i = 0; i < atts.size(); i++) {
