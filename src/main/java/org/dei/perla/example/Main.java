@@ -1,8 +1,11 @@
 package org.dei.perla.example;
 
+import org.dei.perla.core.PerLaSystem;
+import org.dei.perla.core.Plugin;
 import org.dei.perla.core.channel.ChannelFactory;
 import org.dei.perla.core.channel.IORequestBuilderFactory;
 import org.dei.perla.core.channel.http.HttpChannelFactory;
+import org.dei.perla.core.channel.http.HttpChannelPlugin;
 import org.dei.perla.core.channel.http.HttpIORequestBuilderFactory;
 import org.dei.perla.core.descriptor.DataType;
 import org.dei.perla.core.descriptor.DeviceDescriptor;
@@ -20,8 +23,7 @@ import org.dei.perla.core.sample.Attribute;
 import org.dei.perla.core.sample.Sample;
 
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -30,14 +32,15 @@ public class Main {
 	private static final String descFile = "src/main/resources/weather_mi.xml";
 
 	public static void main(String[] args) throws Exception {
-		System.out.println("");
-		DeviceDescriptorParser parser = createParser();
-		FpcFactory factory = createFpcFactory();
+        List<Plugin> plugins = new ArrayList<>();
+        plugins.add(new JsonMapperFactory());
+        plugins.add(new HttpChannelPlugin());
+        PerLaSystem sys = new PerLaSystem(plugins);
 
 		System.out.println("Creating FPC from descriptor " + descFile + "...");
-		DeviceDescriptor d = parser.parse(new FileInputStream(
-				descFile));
-		Fpc fpc = factory.createFpc(d, 1);
+        sys.injectDescriptor(new FileInputStream(descFile));
+        List<Fpc> fpcs = new ArrayList<>(sys.getRegistry().getAll());
+		Fpc fpc = fpcs.get(0);
 
 		System.out.println("Requesting data...");
 		List<Attribute> atts = new ArrayList<>();
@@ -54,29 +57,6 @@ public class Main {
 				e.printStackTrace();
 			}
 		});
-	}
-
-	public static DeviceDescriptorParser createParser() {
-		List<String> packageList = new ArrayList<>();
-		packageList.add("org.dei.perla.core.descriptor");
-		packageList.add("org.dei.perla.core.descriptor.instructions");
-		packageList.add("org.dei.perla.core.channel.http");
-		packageList.add("org.dei.perla.core.message.json");
-
-		return new JaxbDeviceDescriptorParser(packageList);
-	}
-
-	public static FpcFactory createFpcFactory() {
-		List<MapperFactory> mhfList = new ArrayList<>();
-		mhfList.add(new JsonMapperFactory());
-
-		List<ChannelFactory> chfList = new ArrayList<>();
-		chfList.add(new HttpChannelFactory());
-
-		List<IORequestBuilderFactory> rbfList = new ArrayList<>();
-		rbfList.add(new HttpIORequestBuilderFactory());
-
-		return new BaseFpcFactory(mhfList, chfList, rbfList);
 	}
 
 	private static class PrintHandler implements TaskHandler {
