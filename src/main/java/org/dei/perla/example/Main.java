@@ -38,9 +38,7 @@ public class Main {
         PerLaSystem sys = new PerLaSystem(plugins);
 
 		System.out.println("Creating FPC from descriptor " + descFile + "...");
-        sys.injectDescriptor(new FileInputStream(descFile));
-        List<Fpc> fpcs = new ArrayList<>(sys.getRegistry().getAll());
-		Fpc fpc = fpcs.get(0);
+        Fpc fpc = sys.injectDescriptor(new FileInputStream(descFile));
 
 		System.out.println("Requesting data...");
 		List<Attribute> atts = new ArrayList<>();
